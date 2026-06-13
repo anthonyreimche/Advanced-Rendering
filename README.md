@@ -32,6 +32,19 @@ npm run dev        # watch mode
 npm run typecheck  # tsc --noEmit
 ```
 
+> **Important:** `dist/index.js` must be committed to the repo. SafeLight installs
+> extensions by cloning the repo and loading the pre-built bundle directly — it does
+> not run a build step. `node_modules/` is gitignored; `dist/` is not.
+
+To release a new version:
+
+```bash
+npm run build
+git add dist/index.js
+git commit -m "chore: rebuild dist"
+git push
+```
+
 To test locally, symlink or copy the folder into SafeLight's plugin directory:
 
 ```

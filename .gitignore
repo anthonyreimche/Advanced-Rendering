@@ -1,0 +1,5 @@
+node_modules/
+*.local
+
+# dist/ is intentionally committed — SafeLight installs the pre-built bundle
+# directly from the repo without a build step.
