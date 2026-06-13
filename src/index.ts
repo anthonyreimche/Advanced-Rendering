@@ -9,7 +9,6 @@
 //
 // skipBaseCurve: true  → SafeLight disables its default RAW contrast S-curve so
 //                        the transform receives true scene-linear input.
-// skipBaseCurve: false → only the built-in transform; not used here.
 
 // ─── Minimal SafeLight API types ─────────────────────────────────────────────
 
