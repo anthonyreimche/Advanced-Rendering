@@ -1,0 +1,8 @@
+{
+  "id": "advanced-rendering",
+  "name": "Advanced Rendering",
+  "version": "1.0.0",
+  "description": "Selectable display transforms — AgX, ACES, Hable, PBR Neutral and more — in Preferences ▸ Rendering.",
+  "author": "SafeLight",
+  "main": "dist/index.js"
+}
