@@ -3,12 +3,21 @@
 //
 // Each GLSL snippet defines:
 //   vec3 pipelineToDisplay(vec3 lin)
-// where `lin` is scene-linear sRGB (HDR, may exceed 1.0) and the return is
-// the display-encoded output. Helpers from the develop shader are in scope:
-//   luma(vec3), linearToSrgb(vec3), linearToSrgbU(vec3)
+// where `lin` is scene-linear sRGB (HDR, may exceed 1.0) and the return is the
+// display-encoded (piecewise sRGB) output. Helpers from the develop shader are
+// in scope: luma(vec3), linearToSrgb(vec3), linearToSrgbU(vec3)
 //
-// skipBaseCurve: true  → SafeLight disables its default RAW contrast S-curve so
-//                        the transform receives true scene-linear input.
+// skipBaseCurve: true → the transform IS the profile. SafeLight drops both
+// halves of its default baseline look: the RAW camera-matching S-curve at the
+// input (the transform receives true scene-linear data) and the Adobe Color
+// baseline in the tone-curve LUT (user curves compose on identity). Cores
+// before 2.5.1 only gated the input S-curve, so the Adobe contrast stacked on
+// top of these transforms there — hence minAppVersion.
+//
+// Output color management stays in the core: it converts the returned sRGB
+// display encoding once, at the very end, for the selected output space
+// (Display-P3 / Adobe RGB / ProPhoto exports + matching ICC). Transforms must
+// NOT bake their own output-space handling in here.
 
 // ─── Minimal SafeLight API types ─────────────────────────────────────────────
 
@@ -18,6 +27,7 @@ interface PipelineContribution {
   description?: string;
   /** GLSL defining vec3 pipelineToDisplay(vec3 lin). Omit for the built-in. */
   glsl?: string;
+  /** The transform replaces SafeLight's whole baseline look (see header). */
   skipBaseCurve?: boolean;
 }
 
@@ -58,7 +68,10 @@ vec3 pipelineToDisplay(vec3 lin) {
   v = agxContrast(v);
 ${look}
   v = agx_mat_inv * v;
-  return clamp(v, 0.0, 1.0);
+  // The sigmoid approximates a 2.2-gamma encoded image; linearize and hand
+  // back the app's actual display encoding (piecewise sRGB) so display-space
+  // edits and the output color-space conversion see what they expect.
+  return linearToSrgb(pow(max(v, vec3(0.0)), vec3(2.2)));
 }`;
 
 const AGX_PUNCHY_LOOK = `  float lw = dot(v, vec3(0.2126, 0.7152, 0.0722));

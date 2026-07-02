@@ -1,4 +1,4 @@
-const n = (e) => `
+const i = (e) => `
 vec3 agxContrast(vec3 x) {
   vec3 x2 = x * x;
   vec3 x4 = x2 * x2;
@@ -27,12 +27,15 @@ vec3 pipelineToDisplay(vec3 lin) {
   v = agxContrast(v);
 ${e}
   v = agx_mat_inv * v;
-  return clamp(v, 0.0, 1.0);
-}`, i = `  float lw = dot(v, vec3(0.2126, 0.7152, 0.0722));
+  // The sigmoid approximates a 2.2-gamma encoded image; linearize and hand
+  // back the app's actual display encoding (piecewise sRGB) so display-space
+  // edits and the output color-space conversion see what they expect.
+  return linearToSrgb(pow(max(v, vec3(0.0)), vec3(2.2)));
+}`, n = `  float lw = dot(v, vec3(0.2126, 0.7152, 0.0722));
   v = pow(max(v, 0.0), vec3(1.35));
-  v = lw + 1.4 * (v - lw);`, t = `  float lw = dot(v, vec3(0.2126, 0.7152, 0.0722));
+  v = lw + 1.4 * (v - lw);`, a = `  float lw = dot(v, vec3(0.2126, 0.7152, 0.0722));
   v = pow(max(v * vec3(1.0, 0.9, 0.5), 0.0), vec3(0.8));
-  v = lw + 0.8 * (v - lw);`, a = `
+  v = lw + 0.8 * (v - lw);`, t = `
 vec3 pipelineToDisplay(vec3 lin) {
   vec3 x = max(lin, 0.0) * 0.6;
   return linearToSrgb((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14));
@@ -79,30 +82,30 @@ vec3 pipelineToDisplay(vec3 lin) {
 vec3 pipelineToDisplay(vec3 lin) {
   return linearToSrgbU(lin);
 }`;
-function g(e) {
+function p(e) {
   e.registerPipeline({
     id: "rendering.agx",
     name: "AgX",
     description: "Blender's default view transform. Very wide dynamic range with smooth, hue-stable highlight rolloff; intentionally low contrast.",
-    glsl: n(""),
+    glsl: i(""),
     skipBaseCurve: !0
   }), e.registerPipeline({
     id: "rendering.agx-punchy",
     name: "AgX Punchy",
     description: "AgX with the 'punchy' look: extra contrast and saturation.",
-    glsl: n(i),
+    glsl: i(n),
     skipBaseCurve: !0
   }), e.registerPipeline({
     id: "rendering.agx-golden",
     name: "AgX Golden",
     description: "AgX with the 'golden' look: warm, slightly desaturated film tone.",
-    glsl: n(t),
+    glsl: i(a),
     skipBaseCurve: !0
   }), e.registerPipeline({
     id: "rendering.aces",
     name: "ACES Filmic",
     description: "Narkowicz ACES fit — strong shoulder, deep contrast, saturated. The common game/film look.",
-    glsl: a,
+    glsl: t,
     skipBaseCurve: !0
   }), e.registerPipeline({
     id: "rendering.hable",
@@ -145,7 +148,7 @@ function g(e) {
 function d() {
 }
 export {
-  g as activate,
+  p as activate,
   d as deactivate
 };
 //# sourceMappingURL=index.js.map

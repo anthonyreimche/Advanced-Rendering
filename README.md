@@ -17,7 +17,9 @@ A [SafeLight](https://github.com/your-org/safelight) extension that adds selecta
 | **Reinhard (Luminance)** | Extended Reinhard on luminance with a white point. Hue-preserving and reaches true white. |
 | **Linear (no tone map)** | Straight sRGB encode, base curve off. Highlights clip hard — useful for inspecting raw sensor data. |
 
-All replacement transforms disable SafeLight's default RAW base curve and interpret tone sliders through their own response. The same edit will read differently between transforms by design.
+Each transform is a complete profile, not a contrast curve: selecting one replaces SafeLight's whole baseline look — the default RAW input S-curve **and** the Adobe Color baseline the built-in transform bakes into the tone-curve LUT (requires SafeLight ≥ 2.5.1; older cores only dropped the input S-curve, so the Adobe contrast stacked on top). Tone-curve edits compose on identity, starting from the transform's native rendering, and the same edit will read differently between transforms by design.
+
+Output color management stays in SafeLight: transforms return the display (sRGB) encoding, and the core converts once at the end for the selected output space (Display-P3 / Adobe RGB / ProPhoto exports with matching ICC). Transforms never handle output spaces themselves.
 
 ## Installation
 
@@ -61,7 +63,7 @@ SafeLight's WebGL renderer accepts a pluggable GLSL snippet defining:
 vec3 pipelineToDisplay(vec3 lin)
 ```
 
-where `lin` is scene-linear sRGB (HDR, may exceed 1.0) and the return value is the display-encoded output. The following helpers from the develop shader are in scope: `luma(vec3)`, `linearToSrgb(vec3)`, `linearToSrgbU(vec3)`.
+where `lin` is scene-linear sRGB (HDR, may exceed 1.0) and the return value is the display-encoded (piecewise sRGB) output — SafeLight's display-space edits (whites/blacks, tone curve, HSL, masks) run on it, and the output color-space conversion decodes it as sRGB. The following helpers from the develop shader are in scope: `luma(vec3)`, `linearToSrgb(vec3)`, `linearToSrgbU(vec3)`.
 
 Each pipeline is registered via `api.registerPipeline()` in `activate()`. SafeLight compiles and caches a WebGL program per unique GLSL signature — switching transforms is an O(1) program swap with no recompile.
 
