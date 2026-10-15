@@ -19,6 +19,8 @@ A [SafeLight](https://github.com/your-org/safelight) extension that adds selecta
 
 Each transform is a complete profile, not a contrast curve: selecting one replaces SafeLight's whole baseline look — the default RAW input S-curve **and** the Adobe Color baseline the built-in transform bakes into the tone-curve LUT (requires SafeLight ≥ 2.5.1; older cores only dropped the input S-curve, so the Adobe contrast stacked on top). Tone-curve edits compose on identity, starting from the transform's native rendering, and the same edit will read differently between transforms by design.
 
+Each transform also owns its highlight roll-off (`skipToneShoulder`, honoured by SafeLight 3.0.0 and later): SafeLight hands it exposure-scaled scene-linear values with their full headroom instead of compressing them under 1.0 first, so AgX, ACES and the others reach the highlights they were designed for. SafeLight applies it to photos on the current processing; older edits keep the core shoulder, so updating this extension never changes them. Pulling **Highlights** down still blends SafeLight's recovery in, in proportion to the slider. Older cores ignore the flag and keep compressing.
+
 Output color management stays in SafeLight: transforms return the display (sRGB) encoding, and the core converts once at the end for the selected output space (Display-P3 / Adobe RGB / ProPhoto exports with matching ICC). Transforms never handle output spaces themselves.
 
 ## Installation

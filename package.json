@@ -1,12 +1,13 @@
 {
   "name": "safelight-advanced-rendering",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Advanced Rendering extension for SafeLight — AgX, ACES, Hable, PBR Neutral and more.",
   "type": "module",
   "scripts": {
     "build": "vite build",
     "dev": "vite build --watch",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --test --experimental-strip-types test/registrations.test.ts"
   },
   "devDependencies": {
     "typescript": "^5.0.0",

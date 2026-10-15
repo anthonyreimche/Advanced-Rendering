@@ -2,7 +2,7 @@
 	"id": "advanced-rendering",
 	"categories": ["Pipelines"],
 	"name": "Advanced Rendering",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"minAppVersion": "2.5.0",
 	"description": "Selectable display transforms — AgX, ACES, Hable, PBR Neutral and more — in Preferences ▸ Rendering.",
 	"author": "Anthony Reimche",

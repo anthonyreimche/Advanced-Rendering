@@ -33,13 +33,13 @@ ${e}
   return linearToSrgb(pow(max(v, vec3(0.0)), vec3(2.2)));
 }`, n = `  float lw = dot(v, vec3(0.2126, 0.7152, 0.0722));
   v = pow(max(v, 0.0), vec3(1.35));
-  v = lw + 1.4 * (v - lw);`, a = `  float lw = dot(v, vec3(0.2126, 0.7152, 0.0722));
+  v = lw + 1.4 * (v - lw);`, t = `  float lw = dot(v, vec3(0.2126, 0.7152, 0.0722));
   v = pow(max(v * vec3(1.0, 0.9, 0.5), 0.0), vec3(0.8));
-  v = lw + 0.8 * (v - lw);`, t = `
+  v = lw + 0.8 * (v - lw);`, r = `
 vec3 pipelineToDisplay(vec3 lin) {
   vec3 x = max(lin, 0.0) * 0.6;
   return linearToSrgb((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14));
-}`, r = `
+}`, a = `
 vec3 hablePartial(vec3 x) {
   const float A = 0.15; const float B = 0.50; const float C = 0.10;
   const float D = 0.20; const float E = 0.02; const float F = 0.30;
@@ -78,77 +78,87 @@ vec3 pipelineToDisplay(vec3 lin) {
   float l = max(luma(c), 1e-4);
   float ln = l * (1.0 + l / 16.0) / (1.0 + l);
   return linearToSrgb(c * (ln / l));
-}`, v = `
+}`, p = `
 vec3 pipelineToDisplay(vec3 lin) {
   return linearToSrgbU(lin);
 }`;
-function p(e) {
+function d(e) {
   e.registerPipeline({
     id: "rendering.agx",
     name: "AgX",
     description: "Blender's default view transform. Very wide dynamic range with smooth, hue-stable highlight rolloff; intentionally low contrast.",
     glsl: i(""),
-    skipBaseCurve: !0
+    skipBaseCurve: !0,
+    skipToneShoulder: !0
   }), e.registerPipeline({
     id: "rendering.agx-punchy",
     name: "AgX Punchy",
     description: "AgX with the 'punchy' look: extra contrast and saturation.",
     glsl: i(n),
-    skipBaseCurve: !0
+    skipBaseCurve: !0,
+    skipToneShoulder: !0
   }), e.registerPipeline({
     id: "rendering.agx-golden",
     name: "AgX Golden",
     description: "AgX with the 'golden' look: warm, slightly desaturated film tone.",
-    glsl: i(a),
-    skipBaseCurve: !0
+    glsl: i(t),
+    skipBaseCurve: !0,
+    skipToneShoulder: !0
   }), e.registerPipeline({
     id: "rendering.aces",
     name: "ACES Filmic",
     description: "Narkowicz ACES fit — strong shoulder, deep contrast, saturated. The common game/film look.",
-    glsl: t,
-    skipBaseCurve: !0
+    glsl: r,
+    skipBaseCurve: !0,
+    skipToneShoulder: !0
   }), e.registerPipeline({
     id: "rendering.hable",
     name: "Hable Filmic",
     description: "Uncharted 2 operator: filmic toe and shoulder with a true white point; more neutral mids than ACES.",
-    glsl: r,
-    skipBaseCurve: !0
+    glsl: a,
+    skipBaseCurve: !0,
+    skipToneShoulder: !0
   }), e.registerPipeline({
     id: "rendering.hejl",
     name: "Hejl-Dawson Filmic",
     description: "Hejl–Burgess-Dawson curve: crunchy filmic contrast with lifted blacks crushed back; fast and punchy.",
     glsl: l,
-    skipBaseCurve: !0
+    skipBaseCurve: !0,
+    skipToneShoulder: !0
   }), e.registerPipeline({
     id: "rendering.pbr-neutral",
     name: "PBR Neutral",
     description: "Khronos PBR Neutral: hue-preserving, color-faithful below the knee with a gentle desaturating highlight shoulder.",
     glsl: o,
-    skipBaseCurve: !0
+    skipBaseCurve: !0,
+    skipToneShoulder: !0
   }), e.registerPipeline({
     id: "rendering.reinhard",
     name: "Reinhard",
     description: "Classic x/(1+x) per channel. Soft and flat; nothing ever clips.",
     glsl: s,
-    skipBaseCurve: !0
+    skipBaseCurve: !0,
+    skipToneShoulder: !0
   }), e.registerPipeline({
     id: "rendering.reinhard-luma",
     name: "Reinhard (Luminance)",
     description: "Extended Reinhard on luminance with a white point: hue-preserving and reaches true white.",
     glsl: c,
-    skipBaseCurve: !0
+    skipBaseCurve: !0,
+    skipToneShoulder: !0
   }), e.registerPipeline({
     id: "rendering.linear",
     name: "Linear (no tone map)",
     description: "Straight sRGB encode of scene-linear data, base curve off. Highlights clip hard — useful for inspecting raw sensor data.",
-    glsl: v,
-    skipBaseCurve: !0
+    glsl: p,
+    skipBaseCurve: !0,
+    skipToneShoulder: !0
   });
 }
-function d() {
+function u() {
 }
 export {
-  p as activate,
-  d as deactivate
+  d as activate,
+  u as deactivate
 };
 //# sourceMappingURL=index.js.map

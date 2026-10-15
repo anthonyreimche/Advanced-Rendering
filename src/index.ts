@@ -14,6 +14,15 @@
 // before 2.5.1 only gated the input S-curve, so the Adobe contrast stacked on
 // top of these transforms there — hence minAppVersion.
 //
+// skipToneShoulder: true → each transform also owns its highlight roll-off.
+// SafeLight 3.0.0 and later skip the core filmic shoulder for it, so the
+// transform receives exposure-scaled scene-linear values with their full
+// headroom instead of everything squeezed under 1.0 (which AgX rendered no
+// brighter than about 0.8). It applies to photos on the current processing
+// (process version 2); older edits keep the core shoulder, so this update
+// never changes them. Pulling Highlights down still blends the core
+// recovery in, in proportion to the slider. Older cores ignore the flag.
+//
 // Output color management stays in the core: it converts the returned sRGB
 // display encoding once, at the very end, for the selected output space
 // (Display-P3 / Adobe RGB / ProPhoto exports + matching ICC). Transforms must
@@ -29,6 +38,9 @@ interface PipelineContribution {
   glsl?: string;
   /** The transform replaces SafeLight's whole baseline look (see header). */
   skipBaseCurve?: boolean;
+  /** The transform also owns its highlight roll-off: the core's filmic shoulder
+   *  doesn't squeeze the scene under 1.0 first (see header). */
+  skipToneShoulder?: boolean;
 }
 
 interface SafelightAPI {
@@ -162,6 +174,7 @@ export function activate(api: SafelightAPI): void {
       "Blender's default view transform. Very wide dynamic range with smooth, hue-stable highlight rolloff; intentionally low contrast.",
     glsl: agxGlsl(""),
     skipBaseCurve: true,
+    skipToneShoulder: true,
   });
   api.registerPipeline({
     id: "rendering.agx-punchy",
@@ -169,6 +182,7 @@ export function activate(api: SafelightAPI): void {
     description: "AgX with the 'punchy' look: extra contrast and saturation.",
     glsl: agxGlsl(AGX_PUNCHY_LOOK),
     skipBaseCurve: true,
+    skipToneShoulder: true,
   });
   api.registerPipeline({
     id: "rendering.agx-golden",
@@ -176,6 +190,7 @@ export function activate(api: SafelightAPI): void {
     description: "AgX with the 'golden' look: warm, slightly desaturated film tone.",
     glsl: agxGlsl(AGX_GOLDEN_LOOK),
     skipBaseCurve: true,
+    skipToneShoulder: true,
   });
   api.registerPipeline({
     id: "rendering.aces",
@@ -184,6 +199,7 @@ export function activate(api: SafelightAPI): void {
       "Narkowicz ACES fit — strong shoulder, deep contrast, saturated. The common game/film look.",
     glsl: ACES_GLSL,
     skipBaseCurve: true,
+    skipToneShoulder: true,
   });
   api.registerPipeline({
     id: "rendering.hable",
@@ -192,6 +208,7 @@ export function activate(api: SafelightAPI): void {
       "Uncharted 2 operator: filmic toe and shoulder with a true white point; more neutral mids than ACES.",
     glsl: HABLE_GLSL,
     skipBaseCurve: true,
+    skipToneShoulder: true,
   });
   api.registerPipeline({
     id: "rendering.hejl",
@@ -200,6 +217,7 @@ export function activate(api: SafelightAPI): void {
       "Hejl–Burgess-Dawson curve: crunchy filmic contrast with lifted blacks crushed back; fast and punchy.",
     glsl: HEJL_GLSL,
     skipBaseCurve: true,
+    skipToneShoulder: true,
   });
   api.registerPipeline({
     id: "rendering.pbr-neutral",
@@ -208,6 +226,7 @@ export function activate(api: SafelightAPI): void {
       "Khronos PBR Neutral: hue-preserving, color-faithful below the knee with a gentle desaturating highlight shoulder.",
     glsl: PBR_NEUTRAL_GLSL,
     skipBaseCurve: true,
+    skipToneShoulder: true,
   });
   api.registerPipeline({
     id: "rendering.reinhard",
@@ -215,6 +234,7 @@ export function activate(api: SafelightAPI): void {
     description: "Classic x/(1+x) per channel. Soft and flat; nothing ever clips.",
     glsl: REINHARD_GLSL,
     skipBaseCurve: true,
+    skipToneShoulder: true,
   });
   api.registerPipeline({
     id: "rendering.reinhard-luma",
@@ -223,6 +243,7 @@ export function activate(api: SafelightAPI): void {
       "Extended Reinhard on luminance with a white point: hue-preserving and reaches true white.",
     glsl: REINHARD_LUMA_GLSL,
     skipBaseCurve: true,
+    skipToneShoulder: true,
   });
   api.registerPipeline({
     id: "rendering.linear",
@@ -231,6 +252,7 @@ export function activate(api: SafelightAPI): void {
       "Straight sRGB encode of scene-linear data, base curve off. Highlights clip hard — useful for inspecting raw sensor data.",
     glsl: LINEAR_GLSL,
     skipBaseCurve: true,
+    skipToneShoulder: true,
   });
 }
 
