@@ -47,7 +47,8 @@ interface SafelightAPI {
   registerPipeline(c: PipelineContribution): void;
 }
 
-// ─── AgX (Troy Sobotka / Benjamin Wrensch minimal fit — Blender 4.x default)
+// ─── AgX (Benjamin Wrensch's minimal polynomial fit of Troy Sobotka's AgX, with
+// Rec.709 inset/outset matrices; not Blender 4.x's Rec.2020 configuration)
 // Inset matrix → log2 encode over a 16.5-stop window → 6th-order sigmoid →
 // optional look → outset matrix. Output is display-encoded.
 

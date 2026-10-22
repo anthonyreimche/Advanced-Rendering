@@ -1,6 +1,6 @@
 {
 	"id": "advanced-rendering",
-	"categories": ["Pipelines"],
+	"categories": ["Looks"],
 	"name": "Advanced Rendering",
 	"version": "1.2.0",
 	"minAppVersion": "2.5.0",
